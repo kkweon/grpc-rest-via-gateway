@@ -3,11 +3,25 @@ package blog.v1;
 option go_package = "github.com/kkweon/grpc-rest-via-gateway/blog/v1";
 
 import "google/type/datetime.proto";
+import "google/api/annotations.proto";
 
 service BlogService {
-    rpc CreatePost (CreatePostRequest) returns (CreatePostResponse);
-    rpc GetPosts (GetPostsRequest) returns (GetPostsResponse);
-    rpc DeletePost (DeletePostRequest) returns (DeletePostResponse);
+    rpc CreatePost (CreatePostRequest) returns (CreatePostResponse) {
+        option (google.api.http) = {
+            post: "/v1/blog"
+            body: "*"
+        };
+    }
+    rpc GetPosts (GetPostsRequest) returns (GetPostsResponse) {
+        option (google.api.http) = {
+            get: "/v1/blog/{post_id}"
+        };
+    }
+    rpc DeletePost (DeletePostRequest) returns (DeletePostResponse) {
+        option (google.api.http) = {
+            delete: "/v1/blog/{post_id}"
+        };
+    }
 }
 
 // CREATE
