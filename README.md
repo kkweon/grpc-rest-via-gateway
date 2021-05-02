@@ -17,3 +17,14 @@ go install \
 ```shell
 buf generate
 ```
+
+
+## Deploy to Heroku
+
+```shell
+heroku container:push web
+heroku container:release web
+
+# Check the app
+heroku open
+```

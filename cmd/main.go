@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
@@ -16,6 +17,8 @@ import (
 	"github.com/kkweon/grpc-rest-via-gateway/gen/go/blog/v1"
 	"google.golang.org/grpc"
 )
+
+var port = flag.Int("port", 80, "--port 80")
 
 type blogImpl struct {
 	posts []*v1.Post
@@ -61,8 +64,6 @@ func (b *blogImpl) getNewId() int64 {
 	return time.Now().UnixNano()
 }
 
-const addr = ":80"
-
 func allHandler(grpcServer *grpc.Server, httpHandler http.Handler) http.Handler {
 	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logrus.WithField("request", fmt.Sprintf("%+v", r)).Info("hit Handler")
@@ -75,6 +76,11 @@ func allHandler(grpcServer *grpc.Server, httpHandler http.Handler) http.Handler 
 }
 
 func main() {
+	flag.Parse()
+
+	addr := fmt.Sprintf(":%d", *port)
+	logrus.WithField("addr", addr).Info("flag parsed")
+
 	grpcServer := grpc.NewServer()
 	v1.RegisterBlogServiceServer(grpcServer, &blogImpl{})
 	reflection.Register(grpcServer)
