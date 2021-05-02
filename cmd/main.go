@@ -92,6 +92,10 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "gen/openapiv2/blog/v1/blog.swagger.json")
+	})
+	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/", http.FileServer(http.Dir("swagger-ui/dist"))))
 	mux.Handle("/", gwmux)
 
 	err = http.ListenAndServe(addr, allHandler(grpcServer, mux))
