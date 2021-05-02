@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -61,18 +64,20 @@ func (b *blogImpl) getNewId() int64 {
 const addr = ":80"
 
 func allHandler(grpcServer *grpc.Server, httpHandler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logrus.WithField("request", fmt.Sprintf("%+v", r)).Info("hit Handler")
 		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
 			grpcServer.ServeHTTP(w, r)
 		} else {
 			httpHandler.ServeHTTP(w, r)
 		}
-	})
+	}), &http2.Server{})
 }
 
 func main() {
 	grpcServer := grpc.NewServer()
 	v1.RegisterBlogServiceServer(grpcServer, &blogImpl{})
+	reflection.Register(grpcServer)
 
 	gwmux := runtime.NewServeMux()
 	err := v1.RegisterBlogServiceHandlerFromEndpoint(context.Background(), gwmux, addr, []grpc.DialOption{grpc.WithInsecure()})
@@ -83,17 +88,8 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", gwmux)
 
-	conn, err := net.Listen("tcp", ":80")
+	err = http.ListenAndServe(addr, allHandler(grpcServer, mux))
 	if err != nil {
-		panic(err)
-	}
-
-	server := http.Server{
-		Addr:    addr,
-		Handler: allHandler(grpcServer, mux),
-	}
-
-	if err := server.Serve(conn); err != nil {
 		panic(err)
 	}
 }

@@ -15,6 +15,9 @@ service BlogService {
     rpc GetPosts (GetPostsRequest) returns (GetPostsResponse) {
         option (google.api.http) = {
             get: "/v1/blog/{post_id}"
+            additional_bindings {
+                get: "/v1/blog"
+            }
         };
     }
     rpc DeletePost (DeletePostRequest) returns (DeletePostResponse) {
