@@ -1,0 +1,45 @@
+syntax = "proto3";
+package blog.v1;
+option go_package = "github.com/kkweon/grpc-rest-via-gateway/blog/v1";
+
+import "google/type/datetime.proto";
+
+service BlogService {
+    rpc CreatePost (CreatePostRequest) returns (CreatePostResponse);
+    rpc GetPosts (GetPostsRequest) returns (GetPostsResponse);
+    rpc DeletePost (DeletePostRequest) returns (DeletePostResponse);
+}
+
+// CREATE
+message CreatePostRequest {
+    string content = 1;
+}
+
+message CreatePostResponse {
+    Post post = 1;
+}
+
+// READ
+message GetPostsRequest {
+    int64 post_id = 1;
+}
+
+message GetPostsResponse {
+    repeated Post posts = 1;
+}
+
+// DELETE
+message DeletePostRequest {
+    int64 post_id = 1;
+}
+
+message DeletePostResponse {
+
+}
+
+
+message Post {
+    int64 id = 1;
+    string content = 2;
+    google.type.DateTime created_at = 3;
+}

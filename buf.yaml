@@ -1,0 +1,16 @@
+version: v1beta1
+
+name: buf.build/kkweon/grpc-rest-via-gateway
+
+deps:
+  - buf.build/beta/googleapis
+
+build:
+  roots:
+    - .
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - FILE
