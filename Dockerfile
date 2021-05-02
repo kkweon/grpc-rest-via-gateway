@@ -35,8 +35,11 @@ FROM alpine:latest
 RUN apk add ca-certificates
 
 COPY --from=build_base /app/server /app/server
+COPY --from=build_base /app/swagger-ui /app/swagger-ui
+COPY --from=build_base /app/gen/openapiv2 /app/gen/openapiv2
 
 RUN adduser -D kkweon
 USER kkweon
 
-CMD /app/server --port $PORT
+WORKDIR /app
+CMD ./server --port $PORT
