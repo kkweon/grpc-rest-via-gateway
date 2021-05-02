@@ -2,8 +2,8 @@ syntax = "proto3";
 package blog.v1;
 option go_package = "github.com/kkweon/grpc-rest-via-gateway/blog/v1";
 
-import "google/type/datetime.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 service BlogService {
     rpc CreatePost (CreatePostRequest) returns (CreatePostResponse) {
@@ -55,5 +55,5 @@ message DeletePostResponse {
 message Post {
     int64 id = 1;
     string content = 2;
-    google.type.DateTime created_at = 3;
+    google.protobuf.Timestamp created_at = 3;
 }
